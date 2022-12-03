@@ -35,7 +35,6 @@ struct ContentView: View{
                 animationAmountImp = 2
             }
             
-            
             Spacer()
             
             // Explicit:
