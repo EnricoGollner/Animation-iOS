@@ -20,17 +20,15 @@ struct ContentView: View{
         .clipShape(Circle())
         .overlay(
             Circle()
-                .stroke(.blue)
+                .stroke(.red)
                 .scaleEffect(animationAmount)
                 .opacity(2 - animationAmount)
                 .animation(.easeOut(duration: 1)
-                    .repeatForever(autoreverses: false),
-                           value: animationAmount)
+                    .repeatForever(autoreverses: false), value: animationAmount)
         )
         .onAppear{
             animationAmount = 2
         }
-        
     }
 }
 
