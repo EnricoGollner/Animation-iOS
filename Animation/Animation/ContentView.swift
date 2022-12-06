@@ -8,38 +8,58 @@
 import SwiftUI
 
 struct ContentView: View{
+    
+    @State private var isShowingRed = false
+    
+    let letters = Array("Hello, SwiftUI")
+    @State private var enabled = false
+    @State private var dragAmount = CGSize.zero
+    
     @State private var animationAmountImp = 1.0
     @State private var animationAmountExp = 0.0
-    
-    @State private var enabled = false
     
     var body: some View{
         VStack{
             Spacer()
             
-            // Implicit:
-            Button("Tap me"){
-                
+            Button(isShowingRed ? "Hide rectangle" : "Show rectangle"){
+                withAnimation{
+                    isShowingRed.toggle()
+                }
             }
-            .padding(50)
-            .background(.red)
-            .foregroundColor(.white)
-            .clipShape(Circle())
-            .overlay(
-                Circle()
-                    .stroke(.red)
-                    .opacity(2 - animationAmountImp)
-                    .scaleEffect(animationAmountImp)
-                    .animation(.easeOut(duration: 1)
-                        .repeatForever(autoreverses: false), value: animationAmountImp)
-            )
-            .onAppear{
-                animationAmountImp = 2
+            
+            if isShowingRed{
+                Rectangle()
+                    .fill(.red)
+                    .frame(width: 200, height: 200)
+                    .transition(.asymmetric(insertion: .scale, removal: .opacity))
             }
             
             Spacer()
             
-            // Explicit:
+            HStack(spacing: 0){
+                ForEach(0..<letters.count){ num in
+                    Text(String(letters[num]))
+                        .padding(5)
+                        .font(.title)
+                        .background(enabled ? .blue : .red)
+                        .foregroundColor(.white)
+                        .offset(dragAmount)
+                        .animation(.default
+                            .delay(Double(num) / 20), value: dragAmount)
+                }
+            }
+            .gesture(
+                DragGesture()
+                    .onChanged{ dragAmount = $0.translation }
+                    .onEnded{ _ in
+                        dragAmount = .zero
+                        enabled.toggle()
+                    }
+            )
+            
+            Spacer()
+            
             Button("Tap Me"){
                 withAnimation(.interpolatingSpring(stiffness: 5, damping: 1)){
                     animationAmountExp += 360
@@ -50,20 +70,15 @@ struct ContentView: View{
             .foregroundColor(.white)
             .clipShape(Circle())
             .rotation3DEffect(.degrees(animationAmountExp), axis: (x: 0, y: 1, z: 0))
-            
-            Spacer()
-            
-            // Controlling the animation stack
-            Button("Tap Me"){
-                enabled.toggle()
-            }
-            .frame(width: 200, height: 200)
-            .background(enabled ? .blue : .red)
-            .animation(nil, value: enabled)  // With nil, we disable that animation
-            .foregroundColor(.white)
-            .clipShape(RoundedRectangle(cornerRadius: enabled ? 60 : 0))
-            .animation(.interpolatingSpring(stiffness: 10, damping: 1), value: enabled)
-            
+            .overlay(
+                Circle()
+                    .stroke(.red)
+                    .opacity(2 - animationAmountImp)
+                    .scaleEffect(animationAmountImp)
+                    .animation(.easeOut(duration: 1)
+                        .repeatForever(autoreverses: false), value: animationAmountImp)
+            )
+            .onAppear{ animationAmountImp = 2 }
             
             Spacer()
         }
@@ -75,3 +90,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
